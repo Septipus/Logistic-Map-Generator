@@ -1,10 +1,15 @@
-import numpy as np
+import warnings
 from collections import namedtuple, deque
+
+import numpy as np
 
 
 class LogisticMapGenerator:
 
     ValueRange = namedtuple('ValueRange', 'min max')
+    valid_ret_types = ('alpha', 'decimal', 'ternary')
+    ret_type_warn = f'Valid Return Types are: {valid_ret_types}.\
+    Default return type used. ret_type set to "alpha".'
 
     # Global Params
     depth_range = ValueRange(1, 32)
@@ -16,20 +21,59 @@ class LogisticMapGenerator:
                  r: np.float,
                  alphabet: str,
                  depth: int,
-                 ret_type: str = 'alpha',
+                 ret_type: str,
                  ret_history: int = 2
                  ):
 
         self.alphabet = alphabet
         self.depth = depth
         self.r = r
-        self.ret_type = ret_type if ret_type == 'alpha' else 'decimal'
+
+        self.ret_type = ret_type
         self.ret_history = ret_history
 
         self.brackets = len(self.alphabet) + 1
 
         self.x_vals = deque([x])
         self.labels = deque([self.__get_label(x)])
+
+    @property
+    def ret_type(self):
+        return self.__ret_type
+
+    @ret_type.setter
+    def ret_type(self, ret_type):
+        if ret_type not in self.valid_ret_types:
+            warnings.warn(self.ret_type_warn, UserWarning)
+            self.__ret_type = 'alpha'
+        else:
+            self.__ret_type = ret_type
+
+    @property
+    def r(self):
+        return self.__r
+
+    @r.setter
+    def r(self, r):
+        if self.r_range.min < r < self.r_range.max:
+            self.__r = r
+        else:
+            error = f'r-value must be in the range \
+                    ({self.r_range.min} - f{self.r_range.min}).'
+            raise ValueError(error)
+
+    @property
+    def depth(self):
+        return self.__depth
+
+    @depth.setter
+    def depth(self, depth):
+        if self.depth_range.min <= depth <= self.depth_range.max:
+            self.__depth = int(depth)
+        else:
+            error = f'depth must be in the range \
+                    [{self.depth_range.min} - {self.depth_range.max}].'
+            raise ValueError(error)
 
     def __get_label(self, x):
 
@@ -81,31 +125,7 @@ class LogisticMapGenerator:
         return self.labels \
             if self.ret_type == 'alpha' else self.x_vals
 
-    @property
-    def r(self):
-        return self.__r
-
-    @r.setter
-    def r(self, r):
-        if self.r_range.min < r < self.r_range.max:
-            self.__r = r
-        else:
-            error = f'r-value must be in the range \
-                    ({self.r_range.min} - f{self.r_range.min}).'
-            raise ValueError(error)
-
-    @property
-    def depth(self):
-        return self.__depth
-
-    @depth.setter
-    def depth(self, depth):
-        if self.depth_range.min <= depth <= self.depth_range.max:
-            self.__depth = int(depth)
-        else:
-            error = f'depth must be in the range \
-                    [{self.depth_range.min} - {self.depth_range.max}].'
-            raise ValueError(error)
+    
 
 
 if __name__ == '__main__':
