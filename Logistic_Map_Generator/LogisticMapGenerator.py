@@ -7,14 +7,13 @@ import numpy as np
 class LogisticMapGenerator:
 
     ValueRange = namedtuple('ValueRange', 'min max')
-    valid_ret_types = ('alpha', 'decimal', 'ternary')
-    ret_type_warn = f'Valid Return Types are: {valid_ret_types}.\
-    Default return type used. ret_type set to "alpha".'
 
     # Global Params
     depth_range = ValueRange(1, 32)
     r_range = ValueRange(0.0, 4.0)
     map_range = ValueRange(0.0, 1.0)
+
+    valid_ret_types = ('alpha', 'decimal', 'ternary')
 
     def __init__(self,
                  x: np.float,
@@ -37,6 +36,11 @@ class LogisticMapGenerator:
         self.x_vals = deque([x])
         self.labels = deque([self.__get_label(x)])
 
+        self.return_lookups = {'alpha': lambda: self.labels,
+                               'decimal': lambda: self.x_vals,
+                               'ternary': lambda: self.__evaluate_ternary()
+                               }
+
     @property
     def ret_type(self):
         return self.__ret_type
@@ -44,10 +48,33 @@ class LogisticMapGenerator:
     @ret_type.setter
     def ret_type(self, ret_type):
         if ret_type not in self.valid_ret_types:
-            warnings.warn(self.ret_type_warn, UserWarning)
+            warn = f'Valid Return Types are: {self.valid_ret_types}.\
+    Default return type used. ret_type set to "alpha".'
+            warnings.warn(warn, UserWarning)
             self.__ret_type = 'alpha'
         else:
             self.__ret_type = ret_type
+
+    @property
+    def ret_history(self):
+        return self.__ret_history
+
+    @ret_history.setter
+    def ret_history(self, ret_history):
+        if ret_history <= 0:
+            warn = f'ret_history must be > 0.\
+            ret_hist set to 2.'
+            warnings.warn(warn, UserWarning)
+            self.__ret_history = 2
+
+        elif (self.ret_type == 'ternary') and (ret_history != 3):
+            warn = f'ret_history must be = 3 for ret_type = "ternary".\
+            ret_hist set to 3.'
+            warnings.warn(warn, UserWarning)
+            self.__ret_history = 3
+
+        else:
+            self.__ret_history = ret_history
 
     @property
     def r(self):
@@ -106,6 +133,10 @@ class LogisticMapGenerator:
 
         return sequence
 
+    def __evaluate_ternary(self):
+        print('IN HERE')
+        return np.array(self.x_vals) / np.sum(self.x_vals)
+
     def __evaluate_map(self):
         last_x = self.x_vals[-1]
         return last_x * (1 - last_x) * self.r
@@ -122,10 +153,7 @@ class LogisticMapGenerator:
             self.x_vals.append(next_x)
             self.labels.append(next_label)
 
-        return self.labels \
-            if self.ret_type == 'alpha' else self.x_vals
-
-    
+        return self.return_lookups[self.ret_type]()
 
 
 if __name__ == '__main__':
