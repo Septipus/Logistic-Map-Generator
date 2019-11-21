@@ -21,7 +21,8 @@ class LogisticMapGenerator:
                  alphabet: str,
                  depth: int,
                  ret_type: str,
-                 ret_history: int = 2
+                 ret_history: int = 2,
+                 throwaway_itts: int = 10000
                  ):
 
         self.alphabet = alphabet
@@ -41,6 +42,9 @@ class LogisticMapGenerator:
                                'ternary': lambda: self.__evaluate_ternary()
                                }
 
+        for _ in range(throwaway_itts):
+            _ = next(self)
+
     @property
     def ret_type(self):
         return self.__ret_type
@@ -49,7 +53,7 @@ class LogisticMapGenerator:
     def ret_type(self, ret_type):
         if ret_type not in self.valid_ret_types:
             warn = f'Valid Return Types are: {self.valid_ret_types}.\
-    Default return type used. ret_type set to "alpha".'
+            Default return type used. ret_type set to "alpha".'
             warnings.warn(warn, UserWarning)
             self.__ret_type = 'alpha'
         else:
@@ -86,7 +90,7 @@ class LogisticMapGenerator:
             self.__r = r
         else:
             error = f'r-value must be in the range \
-                    ({self.r_range.min} - f{self.r_range.min}).'
+            ({self.r_range.min} - f{self.r_range.max}).'
             raise ValueError(error)
 
     @property
@@ -99,7 +103,7 @@ class LogisticMapGenerator:
             self.__depth = int(depth)
         else:
             error = f'depth must be in the range \
-                    [{self.depth_range.min} - {self.depth_range.max}].'
+            [{self.depth_range.min} - {self.depth_range.max}].'
             raise ValueError(error)
 
     def __get_label(self, x):
@@ -134,7 +138,6 @@ class LogisticMapGenerator:
         return sequence
 
     def __evaluate_ternary(self):
-        print('IN HERE')
         return np.array(self.x_vals) / np.sum(self.x_vals)
 
     def __evaluate_map(self):
