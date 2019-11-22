@@ -1,0 +1,7 @@
+# Ignore Folders:
+# - /images dir used only to generate .gif
+**/images				
+**/.ipynb_checkpoints
+
+# Ignore Files
+*.html
