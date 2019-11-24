@@ -12,11 +12,18 @@ This class is a simple implementation of the Logistic Map with 2 possible option
 2. Alpha *
 3. Ternary (for ternary plot output)
 
-the following is an output of the ternary plot clearly showing the periodic-chaotic interplay of the Logistic Map function as r is incremented between [3.0, 4.0)
+The following is an output of the ternary plot clearly showing the periodic-chaotic interplay of the Logistic Map function as r is incremented between [3.0, 4.0)
 
 <p align="center">
   <img src="https://github.com/SubstanceIsFormAndContent/Logistic-Map-Generator/blob/master/visualisations/Ternary%20Plot%20%5Bt%3D0%2C%20t%3D%2B1%2C%20t%3D%2B2%5D%20of%20Logistic%20Map.gif" width="500"/>
 </p>
+
+And here is the 3D scatter version of the plot for further inspection. (note: it is 31 mb large, may require [downloading](https://github.com/SubstanceIsFormAndContent/Logistic-Map-Generator/blob/master/visualisations/3D%20Ternary%20Scatter%20Plot%20%5Bt%3D0%2C%20t%3D%2B1%2C%20t%3D%2B2%5D%20of%20Logistic%20Map.html) to view and may not work with less than 16 GM of RAM)
+
+<p align="center">
+  <img src="https://github.com/SubstanceIsFormAndContent/Logistic-Map-Generator/blob/master/visualisations/3D%20Ternary%20Scatter%20Plot%20%5Bt%3D0%2C%20t%3D%2B1%2C%20t%3D%2B2%5D%20of%20Logistic%20Map.html" width="500"/>
+</p>
+
 
 Applying the next() operator on the class will yield: (previous value, current value) i.e. (x @ t = 0, x @ t = +1, ... x @ t = + ret_history). Note the the importance of the plotted point @ [1/3, 13, 1/3] which represents the map's fixed point(s) at x = [0, 1-1/r]
 
