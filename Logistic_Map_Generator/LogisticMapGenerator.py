@@ -34,11 +34,12 @@ class LogisticMapGenerator:
 
         self.brackets = len(self.alphabet) + 1
 
-        self.x_vals = deque([x])
-        self.labels = deque([self.__get_label(x)])
+        self.x_vals = np.array([x], dtype=np.float64)
+        if self.ret_type == 'alpha':
+            self.labels = np.array([self.__get_label(x)], dtype=str)
 
         self.return_lookups = {'alpha': lambda: self.labels,
-                               'decimal': lambda: self.x_vals,
+                               'decimal': lambda: np.array(self.x_vals),
                                'ternary': lambda: self.__evaluate_ternary()
                                }
 
@@ -145,16 +146,19 @@ class LogisticMapGenerator:
         return last_x * (1 - last_x) * self.r
 
     def __next__(self):
-        if len(self.x_vals) == self.ret_history:
-            _ = self.x_vals.popleft()
-            _ = self.labels.popleft()
 
-        while len(self.x_vals) < self.ret_history:
+        while len(self.x_vals) <= self.ret_history:
             next_x = self.__evaluate_map()
-            next_label = self.__get_label(next_x)
+            self.x_vals = np.append(self.x_vals, next_x)
 
-            self.x_vals.append(next_x)
-            self.labels.append(next_label)
+            if self.ret_type == 'alpha':
+                next_label = self.__get_label(next_x)
+                self.labels = np.append(self.labels, next_label)
+
+        if len(self.x_vals) >= self.ret_history:
+            self.x_vals = self.x_vals[1:]
+            if self.ret_type == 'alpha':
+                self.labels = self.labels[1:]
 
         return self.return_lookups[self.ret_type]()
 
